@@ -26,10 +26,14 @@ export class EmployeesController {
   create(@Body() createEmployeeDto: Prisma.EmployeeCreateInput) {
     return this.employeesService.create(createEmployeeDto);
   }
-  @SkipThrottle({ default: false }) //not to jump the rate limit for this endpoint
+  // @SkipThrottle({ default: false }) //not to jump the rate limit for this endpoint
+  @Throttle({ short: { ttl: 1000, limit: 1 } }) // 1 second, 3 requests per second
   @Get()
   findAll(@Ip() ip: string, @Query('role') role?: Role) {
-    this.logger.log(`Request for ALL Employees\t${ip}`); //to use logger service in this controller
+    this.logger.log(
+      `Request for ALL Employees\t${ip}`,
+      EmployeesController.name,
+    ); //to use logger service in this controller
     return this.employeesService.findAll(role);
   }
   // if I dont have name short to override
